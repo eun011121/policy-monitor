@@ -1,0 +1,99 @@
+# 언론사 화이트리스트 (RSS 생존 확인된 9개사)
+# 원래 ABC협회 구독 부수 기준 상위 5개 종합일간지 + 경제신문 2개로 구성했으나,
+# 2026-08 재검증 결과 조선일보·중앙일보는 RSS 서비스를 완전히 폐지(사이트에 RSS 링크
+# 자체가 없어짐, 옛 URL은 전부 404이거나 만료된 도메인). 한국경제는 URL 구조는 맞지만
+# Cloudflare 봇 챌린지("Just a moment...")에 막혀 일반 요청으로 접근 불가.
+# 네이버뉴스 경유 수집도 검토했으나 news.naver.com/media.naver.com은 정책상 접근 차단.
+# → RSS가 살아있는 통신사·방송사·종합일간지로 대체·보강함 (2곳 추가: SBS, 세계일보).
+# 실행 전 최신 공식 부수 통계로 재확인 권장
+
+newspapers:
+  - id: yonhap
+    name: 연합뉴스
+    base_url: https://www.yna.co.kr
+    rss_feeds:
+      - url: https://www.yna.co.kr/rss/economy.xml
+        category: 경제
+      - url: https://www.yna.co.kr/rss/politics.xml
+        category: 정치
+    search_url: https://www.yna.co.kr/search/index
+
+  - id: seoul
+    name: 서울신문
+    base_url: https://www.seoul.co.kr
+    rss_feeds:
+      - url: https://www.seoul.co.kr/xml/rss/rss_economy.xml
+        category: 경제
+      - url: https://www.seoul.co.kr/xml/rss/rss_politics.xml
+        category: 정치
+    search_url: https://www.seoul.co.kr/search/
+
+  - id: donga
+    name: 동아일보
+    base_url: https://www.donga.com
+    rss_feeds:
+      - url: https://rss.donga.com/economy.xml
+        category: 경제
+      - url: https://rss.donga.com/politics.xml
+        category: 정치
+    search_url: https://www.donga.com/news/search
+
+  - id: hani
+    name: 한겨레
+    base_url: https://www.hani.co.kr
+    rss_feeds:
+      - url: https://www.hani.co.kr/rss/economy/
+        category: 경제
+      - url: https://www.hani.co.kr/rss/politics/
+        category: 정치
+    search_url: https://www.hani.co.kr/arti/search/
+
+  - id: khan
+    name: 경향신문
+    base_url: https://www.khan.co.kr
+    rss_feeds:
+      - url: https://www.khan.co.kr/rss/rssdata/economy_news.xml
+        category: 경제
+      - url: https://www.khan.co.kr/rss/rssdata/politic_news.xml
+        category: 정치
+    search_url: https://www.khan.co.kr/
+
+  - id: mk
+    name: 매일경제
+    base_url: https://www.mk.co.kr
+    rss_feeds:
+      - url: https://www.mk.co.kr/rss/40300001/
+        category: 경제
+      - url: https://www.mk.co.kr/rss/30200030/
+        category: 정치
+    search_url: https://www.mk.co.kr/search/
+
+  - id: newsis
+    name: 뉴시스
+    base_url: https://newsis.com
+    rss_feeds:
+      - url: https://newsis.com/RSS/economy.xml
+        category: 경제
+      - url: https://newsis.com/RSS/politics.xml
+        category: 정치
+    search_url: https://newsis.com/search/
+
+  - id: sbs
+    name: SBS
+    base_url: https://news.sbs.co.kr
+    rss_feeds:
+      - url: https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=02
+        category: 경제
+      - url: https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=01
+        category: 정치
+    search_url: https://news.sbs.co.kr/news/search/main.do
+
+  - id: segye
+    name: 세계일보
+    base_url: https://www.segye.com
+    rss_feeds:
+      - url: https://www.segye.com/Articles/RSSList/segye_economy.xml
+        category: 경제
+      - url: https://www.segye.com/Articles/RSSList/segye_politics.xml
+        category: 정치
+    search_url: https://www.segye.com/search

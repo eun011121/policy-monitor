@@ -1,0 +1,594 @@
+# 소관 부처 목록 및 키워드 (2026-07 기준)
+#
+# keywords: 1차 후보 필터용 (넓게 잡아서 AI에 넘긴다)
+#   ANTHROPIC_API_KEY 설정 시: 느슨한 키워드로 후보 추출 → Claude가 최종 판단
+#   API 키 없을 때: 아래 strict_keywords로 폴백
+# strict_keywords: API 없을 때 사용하는 엄격한 키워드 (구체적 복합어 위주)
+# exclude_keywords: strict 모드에서 이 키워드가 있으면 해당 부처 분류 제외
+# global_exclude: 어느 섹션에도 분류하지 않는 전체 공통 제외 키워드 (strict 모드)
+
+global_exclude:
+  - 지지율
+  - 전당대회
+  - 경선
+  - 당 대표
+  - ARF
+  - 비핵화
+  - 선관위
+  - 선거
+  - 특검
+  - 압수수색
+
+committees:
+  - id: industry
+    name: 산업통상자원중소벤처기업위원회
+    short: 산자중기위
+    ministries:
+      - id: motie
+        name: 산업통상부
+        press_url: https://www.motir.go.kr/kor/article/ATCL3f49a5a8c
+        rss_url: null
+        # 2025-10-01 산업통상자원부 → 산업통상부로 개편(에너지 업무는 기후에너지환경부로 이관), 도메인도 motie→motir로 변경
+        # 목록이 JS(article.view('id'))로 렌더링되어 상세 URL을 템플릿으로 조립
+        detail_url_template: "https://www.motir.go.kr/kor/article/ATCL3f49a5a8c/{id}/view"
+        js_id_arg_index: 0
+        keywords:
+          - 산업통상자원부
+          - 산자부
+          - 산업부
+          - 통상
+          - 에너지
+          - 무역
+          - 수출
+          - 전력
+          - LNG
+          - 재생에너지
+          - 수소
+          - 배터리
+          - 전기차
+          - FTA
+          - 산업단지
+          - 원산지
+          - 제조업
+        strict_keywords:
+          - 산업통상자원부
+          - 산자부
+          - 산업부
+          - 통상정책
+          - 통상 협상
+          - 무역 정책
+          - 에너지 정책
+          - 에너지 전환
+          - 전력 계획
+          - LNG 수급
+          - 재생에너지 정책
+          - 수소 정책
+          - 에너지법
+        exclude_keywords:
+          - 에너지 주식
+          - 에너지 음료
+
+      - id: mss
+        name: 중소벤처기업부
+        press_url: https://www.mss.go.kr/site/smba/ex/bbs/List.do?cbIdx=86
+        rss_url: null
+        # 목록 행이 JS(doBbsFView('cbIdx','bcIdx',...))로 렌더링되어 상세 URL을 템플릿으로 조립
+        detail_url_template: "https://www.mss.go.kr/site/smba/ex/bbs/View.do?cbIdx=86&bcIdx={id}"
+        js_id_arg_index: 1
+        keywords:
+          - 중소벤처기업부
+          - 중기부
+          - 소상공인
+          - 벤처
+          - 스타트업
+          - 중소기업
+          - 창업
+          - K-브랜드
+          - 기술창업
+          - 골목상권
+        strict_keywords:
+          - 중소벤처기업부
+          - 중기부
+          - 소상공인 정책
+          - 벤처 정책
+          - 스타트업 정책
+          - 중소기업 지원
+          - 소상공인 지원
+          - 기술창업
+        exclude_keywords: []
+
+      - id: kipa
+        name: 지식재산처
+        press_url: https://www.kipo.go.kr/ko/kpoBultnMgmt.do?menuCd=SCD0200618
+        rss_url: null
+        keywords:
+          - 지식재산처
+          - 특허청
+          - 특허
+          - 상표
+          - 지식재산
+          - 지재권
+          - 특허 출원
+        strict_keywords:
+          - 지식재산처
+          - 특허청
+          - 특허 정책
+          - 지식재산 정책
+          - 상표 등록
+          - 지재권
+        exclude_keywords: []
+
+  - id: science
+    name: 과학기술정보방송통신위원회
+    short: 과방위
+    ministries:
+      - id: msit
+        name: 과학기술정보통신부
+        press_url: https://www.msit.go.kr/bbs/list.do?sCode=user&mPid=208&mId=307&bbsSeqNo=94
+        rss_url: null
+        # 목록이 실제 <table>이 아니라 서버가 JS unescape() 호출로 값을 인라인 삽입하는
+        # 방식이라 일반 HTML 파서로는 못 읽음 — 전용 파서(_collect_msit_html) 사용
+        custom_parser: msit_inline_js
+        detail_url_template: "https://www.msit.go.kr/bbs/view.do?sCode=user&mPid=208&mId=307&bbsSeqNo=94&nttSeqNo={id}"
+        keywords:
+          - 과학기술정보통신부
+          - 과기정통부
+          - 과기부
+          - AI 정책
+          - AI법
+          - 인공지능법
+          - 반도체 정책
+          - R&D
+          - 연구개발
+          - ICT
+          - 사이버보안
+          - 디지털 플랫폼
+          - 6G
+          - 양자컴퓨팅
+          - 클라우드 정책
+          - 데이터센터 정책
+          - 방사광가속기
+          - 과기정통부 장관
+        strict_keywords:
+          - 과학기술정보통신부
+          - 과기정통부
+          - 과기부
+          - ICT 정책
+          - AI 정책
+          - 반도체 정책
+          - R&D 예산
+          - 연구개발 예산
+          - 사이버보안
+          - 인공지능법
+          - AI법
+          - 과기정통부 장관
+        exclude_keywords:
+          - AI 채용
+          - AI 먹거리
+          - 비트코인
+          - 가상자산
+
+      - id: kcc
+        name: 방송미디어통신위원회
+        press_url: https://www.kmcc.go.kr/user.do?boardId=1113&page=A05030000
+        rss_url: null
+        # 2025-10-01 방송통신위원회(방통위) 폐지 → 방송미디어통신위원회(방미통위) 출범.
+        # 도메인도 kcc.go.kr → kmcc.go.kr로 변경
+        keywords:
+          - 방송미디어통신위원회
+          - 방미통위
+          - 방송통신위원회
+          - 방통위
+          - OTT
+          - 방송법
+          - 유료방송
+          - 공영방송
+          - KBS 수신료
+          - 미디어 규제
+          - 온라인 동영상
+          - 방미통위원장
+        strict_keywords:
+          - 방송미디어통신위원회
+          - 방미통위
+          - 방송통신위원회
+          - 방통위
+          - OTT 규제
+          - OTT 정책
+          - 방송법
+          - 유료방송
+          - 방송통신 정책
+          - 미디어 규제
+          - 공영방송
+          - KBS 수신료
+          - 방미통위원장
+        exclude_keywords:
+          - 방송 토론
+          - TV 토론
+          - 방송 일정
+          - 생방송
+          - 방송 분량
+
+      - id: nssc
+        name: 원자력안전위원회
+        press_url: https://www.nssc.go.kr/
+        rss_url: null
+        # 보도자료 목록이 AJAX(JSON) 렌더링이라 HTML 스크래핑 대신 내부 API를 직접 호출
+        list_api:
+          url: https://www.nssc.go.kr/ajaxf/FR_BBS_SVC/BBSViewList.do
+          params:
+            pageNo: "1"
+            pagePerCnt: "20"
+            MENU_ID: "190"
+            SITE_NO: "2"
+            BOARD_SEQ: "5"
+          data_path: data.list
+          title_field: SUBJECT
+          date_field: WRITE_DATE
+          id_field: BBS_SEQ
+          views_field: HITS
+        detail_url_template: "https://www.nssc.go.kr/ko/cms/FR_BBS_CON/BoardView.do?MENU_ID=190&CONTENTS_NO=1&SITE_NO=2&BOARD_SEQ=5&BBS_SEQ={id}"
+        keywords:
+          - 원자력안전위원회
+          - 원안위
+          - 원전
+          - 원자로
+          - 방사선
+          - 방사성
+          - 핵발전소
+          - 원자력발전소
+        strict_keywords:
+          - 원자력안전위원회
+          - 원안위
+          - 원전 안전
+          - 방사선 안전
+          - 원자로
+          - 핵발전소
+          - 원전 허가
+          - 방사성 폐기물
+          - 원전 운영
+          - 원자력법
+        exclude_keywords:
+          - 비핵화
+
+      - id: kasa
+        name: 우주항공청
+        press_url: https://www.kasa.go.kr/prog/plcyBrf/brief/kor/sub01_01_04/list.do
+        rss_url: null
+        # 목록이 JS(fn_view('id') → POST /view.do)로 렌더링되어 상세 URL을 템플릿으로 조립 (GET도 지원)
+        detail_url_template: "https://www.kasa.go.kr/prog/plcyBrf/brief/kor/sub01_01_04/view.do?plcyBrfNo={id}"
+        js_id_arg_index: 0
+        keywords:
+          - 우주항공청
+          - 누리호
+          - 발사체
+          - 위성 개발
+          - 위성 발사
+          - 우주 탐사
+          - 우주 개발
+          - 달 탐사
+          - 우주항공
+        strict_keywords:
+          - 우주항공청
+          - 누리호
+          - 한국형 발사체
+          - 위성 개발
+          - 위성 발사
+          - 우주 탐사
+          - 우주 개발
+          - 달 탐사
+          - 우주항공 정책
+        exclude_keywords:
+          - 위성사진
+          - 위성 방송
+
+  - id: agriculture
+    name: 농림축산식품해양수산위원회
+    short: 농해수위
+    ministries:
+      - id: mafra
+        name: 농림축산식품부
+        press_url: https://www.mafra.go.kr/home/5109/subview.do
+        rss_url: null
+        # 기존 URL은 "중지된 사이트입니다" 안내 페이지로 죽어있었음. 새 게시판은 날짜가
+        # <td> 안에 다른 텍스트와 섞여(dd.date) 있어 셀 전체 매칭(fullmatch)이 못 찾고
+        # "오늘"로 잘못 찍히던 문제가 있어 date_selector로 명시.
+        date_selector: "dd.date, .date, .day"
+        keywords:
+          - 농림축산식품부
+          - 농식품부
+          - 농업
+          - 축산
+          - 농산물
+          - 가축
+          - 식품 안전
+          - 농촌
+          - 식량 안보
+          - 쌀
+          - 농가
+          - 농협
+          - 구제역
+          - 조류인플루엔자
+          - 가축분뇨
+        strict_keywords:
+          - 농림축산식품부
+          - 농식품부
+          - 농업 정책
+          - 축산 정책
+          - 식품 정책
+          - 농촌 정책
+          - 식량 안보
+          - 쌀 정책
+          - 농가
+        exclude_keywords:
+          - 농업 은행
+          - 농협 주가
+
+      - id: mof
+        name: 해양수산부
+        press_url: https://www.mof.go.kr/doc/ko/selectDocList.do?menuSeq=971&bbsSeq=10
+        rss_url: null
+        # 목록이 JS(fn_selectDoc('docSeq'))로 렌더링되어 상세 URL을 템플릿으로 조립
+        detail_url_template: "https://www.mof.go.kr/doc/ko/selectDoc.do?docSeq={id}&bbsSeq=10&menuSeq=971"
+        js_id_arg_index: 0
+        keywords:
+          - 해양수산부
+          - 해수부
+          - 수산
+          - 해양
+          - 항만
+          - 어업
+          - 해운
+          - 어촌
+          - 해양환경
+          - 수산업
+        strict_keywords:
+          - 해양수산부
+          - 해수부
+          - 해양 정책
+          - 수산 정책
+          - 항만 정책
+          - 어업 정책
+          - 해운 정책
+          - 수산업
+          - 어촌
+          - 해수부 장관
+        exclude_keywords: []
+
+      - id: rda
+        name: 농촌진흥청
+        press_url: https://www.rda.go.kr/board/board.do?mode=list&prgId=day_farmprmninfoEntry
+        rss_url: null
+        list_selector: "ul.krds-structured-list > li"
+        title_selector: ".c-tit"
+        date_selector: ".c-date"
+        # 기존 URL(bare rda.go.kr)은 리다이렉트된 홈페이지의 우편번호 검색 위젯 표를
+        # 진짜 게시판으로 오인해서 엉뚱한 1건만 잡던 상태였음. 실제 보도자료 게시판으로 교체.
+        keywords:
+          - 농촌진흥청
+          - 농진청
+          - 농업 기술
+          - 농업 연구
+          - 품종 개발
+        strict_keywords:
+          - 농촌진흥청
+          - 농진청
+          - 농업 기술
+          - 농업 연구
+        exclude_keywords: []
+
+      - id: kcg
+        name: 해양경찰청
+        press_url: https://www.kcg.go.kr/kcg/na/ntt/selectNttList.do?mi=2799&bbsId=313
+        rss_url: null
+        keywords:
+          - 해양경찰청
+          - 해경
+          - 해양경찰
+          - 해상 단속
+          - 불법 조업
+          - 해양 안전
+          - 해난 구조
+        strict_keywords:
+          - 해양경찰청
+          - 해경청
+          - 해양경찰
+          - 해상 단속
+          - 불법 조업 단속
+          - 해양 안전 정책
+          - 해난 구조
+        exclude_keywords: []
+
+      - id: kfs
+        name: 산림청
+        press_url: https://www.forest.go.kr/kfsweb/cop/bbs/selectBoardList.do?bbsId=BBSMSTR_1036&mn=NKFS_04_02_01
+        rss_url: null
+        list_selector: "ul.lst_thumb > li"
+        title_selector: ".info_title strong"
+        date_selector: ".sa_date"
+        # 기존 URL(bare forest.go.kr)은 JS document.location.href 리다이렉트 스텁이라
+        # requests가 못 따라가 0건이었음. 실제 보도자료 게시판으로 교체.
+        # 농림부/해수부 대비 비중이 낮은 기관 — report.md에서 '하' 등급 노출 상한을
+        # 더 타이트하게 적용(report_compiler.py LOW_ITEM_CAP_OVERRIDE)
+        keywords:
+          - 산림청
+          - 산불
+          - 산림
+          - 임업
+          - 목재
+          - 탄소흡수원
+          - 산림 복원
+        strict_keywords:
+          - 산림청
+          - 산림 정책
+          - 임업 정책
+          - 목재
+          - 산불
+          - 탄소흡수원
+        exclude_keywords: []
+
+  - id: politics
+    name: 정무위원회
+    short: 정무위
+    ministries:
+      - id: fsc
+        name: 금융위원회
+        press_url: https://www.fsc.go.kr/no010101
+        rss_url: null
+        list_selector: "div.board-list-wrap li"
+        # 기존 URL(po020301)은 보도자료가 아니라 "정책마당" 내 엉뚱한 게시판(행정관리역량
+        # 자체평가 등)을 가리키고 있었음 — 실제 보도자료(위원회 소식 > 보도자료) 게시판으로 교체
+        keywords:
+          - 금융위원회
+          - 금융위
+          - 금융 정책
+          - 금융 규제
+          - 은행법
+          - 금융지주
+          - 자본시장
+          - 핀테크
+          - 가상자산법
+          - 금융감독
+          - 공매도
+          - PF 대출
+          - 가계부채
+          - 대출 규제
+          - 금산분리
+          - 금융위원장
+        strict_keywords:
+          - 금융위원회
+          - 금융위
+          - 금융 정책
+          - 금융 규제
+          - 자본시장법
+          - 핀테크 정책
+          - 가상자산법
+          - 공매도
+          - PF 대출
+          - 가계부채
+          - 금융위원장
+        exclude_keywords: []
+
+      - id: kftc
+        name: 공정거래위원회
+        press_url: https://www.ftc.go.kr/www/selectBbsNttList.do?bordCd=3&key=12
+        rss_url: null
+        keywords:
+          - 공정거래위원회
+          - 공정위
+          - 공정거래
+          - 독점
+          - 담합
+          - 플랫폼 규제
+          - 대기업 집단
+          - 불공정거래
+          - 기업결합
+          - 가맹
+          - 공정위원장
+        strict_keywords:
+          - 공정거래위원회
+          - 공정위
+          - 공정거래법
+          - 독점 규제
+          - 담합 규제
+          - 플랫폼 규제
+          - 대기업 집단
+          - 불공정거래
+          - 기업결합
+          - 공정위원장
+        exclude_keywords: []
+
+      - id: opm
+        name: 국무조정실·국무총리비서실
+        press_url: https://www.opm.go.kr/opm/news/press-release.do
+        rss_url: null
+        # 기존 URL(bare opm.go.kr)은 홈페이지로 리다이렉트되어 0건이었음 — 실제 보도자료 게시판으로 교체
+        keywords:
+          - 국무조정실
+          - 국무총리
+          - 총리실
+          - 총리 주재
+          - 국정 조정
+        strict_keywords:
+          - 국무조정실
+          - 국무총리
+          - 총리실
+          - 총리 주재
+          - 국정 조정
+        exclude_keywords: []
+
+      - id: acrc
+        name: 국민권익위원회
+        press_url: https://www.acrc.go.kr/menu.es?mid=a10402010000
+        rss_url: null
+        # 기존 URL(bare acrc.go.kr)은 홈페이지라 0건이었음 — 실제 보도자료 게시판으로 교체
+        keywords:
+          - 국민권익위원회
+          - 권익위
+          - 청렴
+          - 부패 방지
+          - 고충 민원
+          - 행동강령
+        strict_keywords:
+          - 국민권익위원회
+          - 권익위
+          - 청렴 정책
+          - 부패 방지
+          - 고충 민원
+        exclude_keywords: []
+
+  - id: common
+    name: 공통(재정·예산·거시경제)
+    short: 공통
+    # 소관 상임위가 없는 범부처 거시 이슈 전용 — report/dashboard의 "공통 이슈" 섹션에 표시됨.
+    # 2026-01-02 기획재정부가 재정경제부(세제·경제·금융·국고)와 기획예산처(예산·재정)로 분리.
+    ministries:
+      - id: mofe
+        name: 재정경제부
+        press_url: https://mofe.go.kr/nw/nes/nesdta.do?bbsId=MOSFBBS_000000000028&menuNo=4010100
+        rss_url: null
+        # 목록이 JS(fn_egov_select('nttId'))로 렌더링되어 상세 URL을 템플릿으로 조립
+        detail_url_template: "https://mofe.go.kr/nw/nes/detailNesDtaView.do?searchBbsId1=MOSFBBS_000000000028&searchNttId1={id}&menuNo=4010100"
+        js_id_arg_index: 0
+        keywords:
+          - 재정경제부
+          - 세제개편
+          - 경제정책방향
+          - 국세수입
+          - 물가관계차관회의
+          - 소비자물가
+          - 거시경제
+          - 조세지출
+        strict_keywords:
+          - 재정경제부
+          - 세제개편안
+          - 경제정책방향
+          - 국세수입 동향
+          - 소비자물가 동향
+          - 조세지출
+        exclude_keywords: []
+
+      - id: mpb
+        name: 기획예산처
+        press_url: https://www.mpb.go.kr/web/main/bbs/b_0001/list
+        rss_url: null
+        # 기존 b_0003 게시판은 보도자료가 아니라 유튜브/카드뉴스 등 미디어 게시판이었음 —
+        # 실제 텍스트 보도자료 게시판(b_0001)으로 교체
+        keywords:
+          - 기획예산처
+          - 예산안
+          - 국가재정운용계획
+          - 재정지출
+          - 총지출
+          - 예산편성
+        strict_keywords:
+          - 기획예산처
+          - 예산안 편성
+          - 국가재정운용계획
+          - 재정지출 구조조정
+        exclude_keywords: []
+
+# 통합 보도자료 포털
+portal:
+  name: 정책브리핑
+  rss_url: https://www.korea.kr/rss/pressRelease.do
+  base_url: https://www.korea.kr

@@ -1,0 +1,373 @@
+# 연구기관 목록 (부처별 1:1 매칭 + 공통 기관)
+# 2026-07 기준 — URL 실접속 확인 완료
+
+# 부처 전담 연구기관 (특정 위원회/부처에 배치)
+dedicated:
+  - id: kiet
+    name: 산업연구원
+    short: KIET
+    committee: industry
+    ministry: motie
+    base_url: https://www.kiet.re.kr
+    publications_url: https://www.kiet.re.kr/research/reportList
+    rss_url: null
+    # 페이지에 오래된(2021년) <table> 잔재가 있어 공용 table 선택자가 먼저 걸려버림 —
+    # 실제 목록은 ul.list_box
+    list_selector: "ul.list_box li"
+
+  - id: kiet_issue
+    name: 산업연구원
+    short: KIET
+    committee: industry
+    ministry: motie
+    base_url: https://www.kiet.re.kr
+    publications_url: https://www.kiet.re.kr/research/issueList
+    rss_url: null
+    list_selector: "ul.list_box li"
+    # 위 kiet 항목("연구보고서" 시리즈)은 발행 빈도가 낮음 — 더 자주 나오는
+    # i-KIET 산업경제이슈 시리즈를 추가로 수집
+
+  - id: kosbi
+    name: 중소벤처기업연구원
+    short: KOSI
+    committee: industry
+    ministry: mss
+    base_url: https://www.kosi.re.kr
+    publications_url: https://www.kosi.re.kr/front/subMenuDisplay?menuFrontNo=59996687477237983229272069890802427549
+    rss_url: null
+    date_from_detail: true
+    list_selector: "ul.gallaylist_box.type1 > li"
+    # 주의: 구 도메인 kosbi.re.kr은 만료되어 제3자(광고성 콘텐츠 사이트)가 점유 중 —
+    # 절대 사용 금지. 기관이 kosi.re.kr로 도메인 이전. 목록에 발행일이 없어 상세페이지에서
+    # 날짜를 가져온다(date_from_detail). list_selector 없이 공용 후보(자손 선택자 'ul.gallaylist_box li')를
+    # 쓰면 리포트 블록 안의 "저자:" 미니 리스트 <li>까지 같이 잡혀(12건 실제 리포트가 36건으로
+    # 부풀려짐) 대부분 빈 조각이라 날짜/링크가 없어 통째로 버려졌었음 — 직계 자식 선택자로 교정.
+
+  - id: kosbi_trends
+    name: 중소벤처기업연구원
+    short: KOSI
+    committee: industry
+    ministry: mss
+    base_url: https://www.kosi.re.kr
+    publications_url: https://www.kosi.re.kr/front/functionDisplay?menuFrontNo=85412273688313827484644070050082704520&menuFrontURL=front/economicTrendsList
+    rss_url: null
+    date_from_detail: true
+    # "KOSI 중소기업 동향"(월간) — 위 kosbi(정책연구 보고서) 시리즈는 2025-12 이후 정체돼
+    # 있어서 실제로 매달 나오는 이 시리즈를 추가로 수집. 목록엔 "26-07"처럼만 표시되어
+    # 일자 파싱이 안 되므로 상세페이지에서 날짜를 가져온다(date_from_detail)
+
+  - id: kosbi_focus
+    name: 중소벤처기업연구원
+    short: KOSI
+    committee: industry
+    ministry: mss
+    base_url: https://www.kosi.re.kr
+    publications_url: https://www.kosi.re.kr/front/functionDisplay?menuFrontNo=322423919227700596633306148027564711658&menuFrontURL=front/focusList
+    rss_url: null
+    list_selector: "ul.gallaylist_box.type1 > li"
+    date_from_detail: true
+    # 중소벤처 이슈포커스 시리즈 추가 수집 (위 kosbi 항목과 별개 시리즈)
+
+  - id: kiip
+    name: 한국지식재산연구원
+    short: KIIP
+    committee: industry
+    ministry: kipa
+    base_url: https://www.kiip.re.kr
+    publications_url: https://www.kiip.re.kr/research_report/list.do?bd_gb=report&bd_cd=1&bd_item=0&po_item_gb=rgb_10
+    rss_url: null
+    date_from_detail: true
+    # 2026-08 사이트 전면 개편으로 구 URL(boardList.do) 폐기. 신규 목록은 월(YYYY-MM) 단위 날짜만
+    # 표시해서 일자 파싱이 안 되므로 상세페이지에서 날짜를 가져온다(date_from_detail).
+
+  - id: kiip_report
+    name: 한국지식재산연구원
+    short: KIIP
+    committee: industry
+    ministry: kipa
+    base_url: https://www.kiip.re.kr
+    publications_url: https://www.kiip.re.kr/board/data/list.do?bd_gb=data&bd_cd=3&bd_item=0&po_item_gb=2
+    rss_url: null
+    list_selector: "table.BoardList tbody tr"
+    # IP Report/World IP Review 시리즈 — 위 kiip 항목과 달리 목록에 날짜(YYYY-MM-DD)가 그대로 표시됨
+
+  - id: stepi
+    name: 과학기술정책연구원
+    short: STEPI
+    committee: science
+    ministry: msit
+    base_url: https://www.stepi.re.kr
+    publications_url: https://www.stepi.re.kr/site/stepiko/report/List.do?cateCont=A0501
+    rss_url: null
+    # STEPI Insight 시리즈(가장 빈번히 발행되는 대표 발간물) 목록. 정상 테이블 구조, 날짜 표시됨.
+    # 다른 시리즈(Brief/Outlook 등)는 cateCont 파라미터만 바꾸면 됨 — 필요 시 추가 검토
+
+  - id: kisdi
+    name: 정보통신정책연구원
+    short: KISDI
+    committee: science
+    ministry: kcc
+    base_url: https://www.kisdi.re.kr
+    publications_url: https://www.kisdi.re.kr/report/list.do?key=m2101113024153&arrMasterId=3934560
+    rss_url: null
+    detail_url_template: "https://www.kisdi.re.kr/report/view.do?key=m2101113024153&masterId=3934560&arrMasterId=3934560&artId={id}"
+    js_id_arg_index: 1
+    list_selector: "div.board_list > ul > li"
+
+  - id: kisdi_perspectives
+    name: 정보통신정책연구원
+    short: KISDI
+    committee: science
+    ministry: kcc
+    base_url: https://www.kisdi.re.kr
+    publications_url: https://www.kisdi.re.kr/report/list.do?key=m2102058837181&arrMasterId=4334696
+    rss_url: null
+    detail_url_template: "https://www.kisdi.re.kr/report/view.do?key=m2102058837181&masterId=4334696&arrMasterId=4334696&artId={id}"
+    js_id_arg_index: 1
+    list_selector: "div.board_list > ul > li"
+    # KISDI Perspectives 시리즈 — 위 kisdi 항목(기본연구, 2025-12 이후 정체)과 별개 시리즈,
+    # 목록에 날짜(YYYY-MM-DD)가 그대로 표시됨
+
+  - id: kari
+    name: 한국항공우주연구원
+    short: KARI
+    committee: science
+    ministry: kasa
+    base_url: https://www.kari.re.kr
+    publications_url: https://www.kari.re.kr/kor/35/news
+    rss_url: null
+    list_selector: "ul.list li"
+    # 2026-08 재확인: 뉴스룸(news) 게시판은 서버 렌더링이라 정상 수집 가능(SPA 아님).
+    # 다만 보도자료 성격이 섞여 있음(순수 연구성과만은 아님) — 필요 시 조달공고 등 제외 검토
+
+  - id: kaeri
+    name: 한국원자력연구원
+    short: KAERI
+    committee: science
+    ministry: nssc
+    base_url: https://www.kaeri.re.kr
+    publications_url: https://www.kaeri.re.kr/board?menuId=MENU00326
+    rss_url: null
+
+  - id: kins
+    name: 한국원자력안전기술원
+    short: KINS
+    committee: science
+    ministry: nssc
+    base_url: https://www.kins.re.kr
+    publications_url: https://www.kins.re.kr/kinsNews
+    rss_url: null
+    # 목록이 JS(goPost('/kinsNews/id'))로 렌더링되어 상세 URL을 템플릿으로 조립
+    detail_url_template: "https://www.kins.re.kr{id}"
+    js_id_arg_index: 0
+
+  - id: etri
+    name: 한국전자통신연구원
+    short: ETRI
+    committee: science
+    ministry: msit
+    base_url: https://www.etri.re.kr
+    publications_url: https://www.etri.re.kr/kor/bbs/list.etri?b_board_id=ETRI06
+    rss_url: null
+    # 지식공유플랫폼(ksp.etri.re.kr)은 연도만 표시돼 날짜 파싱 불가 — 대신 보도자료 게시판 사용
+
+  - id: kist
+    name: 한국과학기술연구원
+    short: KIST
+    committee: science
+    ministry: msit
+    base_url: https://www.kist.re.kr
+    publications_url: https://kist.re.kr/ko/news/latest-research-results.do
+    rss_url: null
+    list_selector: "div.bn-list-thumb01 > ul > li"
+    # 자손 선택자(공백)였을 때 카드 내부의 작성자/작성일 메타 <li> 조각까지 같이 잡혀
+    # 10건 실제 항목이 50건으로 부풀려지던 KOSI와 동일한 버그 — 직계 자식으로 교정
+
+  - id: krei
+    name: 한국농촌경제연구원
+    short: KREI
+    committee: agriculture
+    ministry: mafra
+    base_url: https://www.krei.re.kr
+    publications_url: https://www.krei.re.kr/krei/page/53
+    rss_url: null
+    list_selector: "div.item"
+    # 기존 URL(/reporter/index.do)은 연구보고서가 아니라 시민 기고 게시판("리포터사랑방")을
+    # 가리키고 있었음 — 실제 연구보고서 목록 페이지로 교체
+
+  - id: kmi
+    name: 한국해양수산개발원
+    short: KMI
+    committee: agriculture
+    ministry: mof
+    base_url: https://www.kmi.re.kr
+    publications_url: https://www.kmi.re.kr/web/board/list.do?rbsIdx=384
+    rss_url: null
+
+  - id: kif
+    name: 한국금융연구원
+    short: KIF
+    committee: politics
+    ministry: fsc
+    base_url: https://www.kif.re.kr
+    publications_url: https://www.kif.re.kr/kif4/publication/pub_list?mid=10
+    rss_url: null
+    # 구 URL(kif2/...)은 "더 이상 운영하지 않는 사이트"로 완전히 죽어있었음. 새 URL로 교체했으나
+    # 목록이 AJAX/클라이언트 렌더링이라 여전히 정적 스크래핑으로는 항목이 안 잡힘.
+    # 2026-08 재확인: kif4 플랫폼의 모든 게시판(mid= 전수 테스트)이 서버쪽 RecordCount=0으로
+    # 응답 — JS 실행 없이는 근본적으로 수집 불가능한 구조로 확인됨(추후 헤드리스 브라우저 도입 시 재검토)
+
+  - id: kcmi
+    name: 자본시장연구원
+    short: KCMI
+    committee: politics
+    ministry: fsc
+    base_url: https://www.kcmi.re.kr
+    publications_url: https://www.kcmi.re.kr/report/report_list
+    rss_url: null
+    # 카드형 목록(div.sign_guide) — 실제 상세보기는 onclick="viewpage(id, ...)"
+    detail_url_template: "https://www.kcmi.re.kr/report/report_view?report_no={id}"
+    js_id_arg_index: 0
+
+  - id: kipa
+    name: 한국행정연구원
+    short: KIPA
+    committee: politics
+    ministry: opm
+    base_url: https://www.kipa.re.kr
+    publications_url: null   # 목록이 완전 클라이언트 렌더링(SPA)이고 발행년도만 표시(일자 없음)
+                              # — requests+BeautifulSoup로 접근 불가. 2026-08 재확인: 사이트 TLS
+                              # 인증서까지 깨져있어(SSLCertVerificationError) 이중으로 접근 불가
+    rss_url: null
+
+  - id: kistep
+    name: 한국과학기술기획평가원
+    short: KISTEP
+    committee: science
+    ministry: msit
+    base_url: https://www.kistep.re.kr
+    publications_url: https://www.kistep.re.kr/board.es?mid=a10305000000&bid=0002
+    rss_url: null
+    date_from_detail: true
+    # 목록에 등록일 컬럼이 없어(번호/분류/제목/저자/첨부만 존재) — KOSBI/KIIP와 동일한
+    # 구조적 한계라 상세페이지에서 날짜를 가져온다(date_from_detail)
+
+  - id: kistep_brief
+    name: 한국과학기술기획평가원
+    short: KISTEP
+    committee: science
+    ministry: msit
+    base_url: https://www.kistep.re.kr
+    publications_url: https://www.kistep.re.kr/board.es?mid=a10306010000&bid=0031
+    rss_url: null
+    list_selector: "ul.board_pdf.publication_list > li"
+    # KISTEP 브리프(이슈페이퍼/정책브리프/통계브리프/기술동향브리프 통합) — 위 kistep 항목과
+    # 달리 목록에 날짜(YYYY-MM-DD)가 그대로 표시됨
+
+# 공통 연구기관 (주제 성격에 따라 분류) — 4개 소관 상임위 어디에도 속하지 않는
+# 범부처 거시 주제 또는 다른 상임위 소관 기관. "공통 이슈" 섹션에 표시됨.
+common:
+  - id: kdi
+    name: 한국개발연구원
+    short: KDI
+    base_url: https://www.kdi.re.kr
+    publications_url: https://www.kdi.re.kr/research/reportList
+    rss_url: null
+    list_selector: "div.page_list-group li"
+    date_from_detail: true
+    # 구 URL(reportList.jsp)은 접속 시 봇 차단 안내 페이지로 리다이렉트되는 죽은 링크였음.
+    # 신규 목록에는 날짜가 없어 상세페이지에서 가져온다(date_from_detail)
+
+  - id: kipf
+    name: 한국조세재정연구원
+    short: KIPF
+    base_url: https://www.kipf.re.kr
+    publications_url: https://www.kipf.re.kr/bbs/panel_report_DataReport.do
+    rss_url: null
+    # 이 URL은 좁은 패널조사 시리즈만 담당. 실제 주력 보고서(재정포럼/조세재정브리프)는
+    # 신규 플랫폼(kiPublish)에 있는데 월(YYYY-MM) 단위 날짜만 노출되고 상세페이지도 세션
+    # 기반 POST라 현재 방식으로는 스크래핑 불가 — 아래 kipf_press(보도자료)로 대체 커버
+
+  - id: kipf_press
+    name: 한국조세재정연구원
+    short: KIPF
+    base_url: https://www.kipf.re.kr
+    publications_url: https://www.kipf.re.kr/bbs/kor_Plaza_PressRelease.do
+    rss_url: null
+    list_selector: "table.board_list tbody tr"
+    detail_url_template: "https://www.kipf.re.kr/bbs/kor_Plaza_PressRelease/view.do?nttId={id}"
+    js_id_arg_index: 0
+    # 재정포럼/조세재정브리프 등 신규 발간 시 보도자료로 공지되는 것을 포착 (원문 보고서
+    # 자체가 아니라 발간 공지지만, 날짜가 명확하고(YYYY-MM-DD) 실질 내용도 포함됨)
+
+  - id: kipf_forum
+    name: 한국조세재정연구원
+    short: KIPF
+    base_url: https://www.kipf.re.kr
+    publications_url: https://www.kipf.re.kr/kor/Publication/All/kiPublish/ALL/list.do
+    rss_url: null
+    list_selector: "div.obj.col1 > div.col"
+    detail_url_template: "https://www.kipf.re.kr/kor/Publication/All/kiPublish/ALL/view.do?serialNo={id}"
+    js_id_arg_index: 0
+    # 신 kiPublish 플랫폼 — "전체"(All) 목록으로 등록. 재정포럼(월간)만 담당하던 이전
+    # 버전은 실제로는 연구보고서/조세재정브리프/재정성과평가동향/공공기관Brief 등
+    # 10여개 시리즈가 있는데 그중 발행이 가장 잦은 하나만 보던 것이었음 — "전체"는 모든
+    # 시리즈를 발간월 기준으로 통합해서 보여주고, view URL도 시리즈 무관하게 공용으로 동작함
+    # (연구보고서/조세재정브리프 등 개별 시리즈는 2025년 이후 정체 상태로 확인됨).
+    # 목록에 일자 없이 "발간월"(YYYY-MM)만 표시되어 _parse_date의 월 단위 폴백으로 인식됨
+
+  - id: keri
+    name: 한국경제연구원
+    short: KERI
+    base_url: https://www.keri.org
+    publications_url: https://www.keri.org/keri/publication/research.do?re_type=
+    rss_url: null
+    # 이전 403은 User-Agent 미설정 탓으로 추정 — 현재 헤더로는 정상 접속됨.
+    # 목록이 JS(detailNT('id'))로 렌더링되어 상세 URL을 템플릿으로 조립 (GET 파라미터로도 접근 가능 확인)
+    detail_url_template: "https://www.keri.org/keri/publication/research_detail.do?bbs_id={id}&category=RE&re_type="
+    js_id_arg_index: 0
+
+  - id: kiep
+    name: 대외경제정책연구원
+    short: KIEP
+    base_url: https://www.kiep.go.kr
+    publications_url: https://www.kiep.go.kr/gallery.es?mid=a10101030000&bid=0001
+    rss_url: null
+    # 이 URL은 "연구자료" 한 시리즈만 담당 — KIEP은 발간물이 여러 시리즈(기본연구보고서/
+    # 정책연구브리핑/오늘의 세계경제 등)로 나뉘어 있어 이 시리즈만으로는 발행 빈도가
+    # 낮아 보임(90일 창에 3건). 아래 kiep_brief 항목에서 더 빈도 높은 시리즈를 추가로 수집.
+
+  - id: kiep_brief
+    name: 대외경제정책연구원
+    short: KIEP
+    base_url: https://www.kiep.go.kr
+    publications_url: https://www.kiep.go.kr/gallery.es?mid=a10102010000&bid=0002
+    rss_url: null
+
+  - id: keei
+    name: 에너지경제연구원
+    short: KEEI
+    base_url: https://www.keei.re.kr
+    publications_url: https://www.keei.re.kr/board.es?mid=a10102010000&bid=0002
+    rss_url: null
+    list_selector: "ul.report_list > li"
+    # 에너지 정책은 2025-10 기후에너지환경부로 이관되어 현재 4개 소관위 어디에도 속하지 않음.
+    # 기존 URL(mid=a10101000000, 연구보고서)은 최근 4/30 이후 정체 — "간행물 전체보기"로
+    # 교체해 국제유가/시장동향/세계원전시장인사이트 등 더 잦은 시리즈까지 포함
+
+  - id: kihasa
+    name: 한국보건사회연구원
+    short: KIHASA
+    base_url: https://www.kihasa.re.kr
+    publications_url: https://www.kihasa.re.kr/publish/regular/focus/list
+    rss_url: null
+    list_selector: "li.rpt-thumb-li"
+    # 기존 URL("연구보고서")은 연도만 표시되고 일자가 없어 구조적으로 필터를 못 통과했음 —
+    # 격주 발행되는 "보건복지 Issue&Focus" 시리즈로 교체(목록에 날짜 YYYY-MM-DD 그대로 표시)
+
+  - id: kli
+    name: 한국노동연구원
+    short: KLI
+    base_url: https://www.kli.re.kr
+    publications_url: https://www.kli.re.kr/kli/newestPblctList.es?mid=a10101000000
+    rss_url: null

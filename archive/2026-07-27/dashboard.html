@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>정책 모니터링 대시보드 — 2026-07-27</title>
+<style>
+  :root {
+    --bg: #f8f9fa; --card: #fff; --border: #dee2e6;
+    --text: #212529; --muted: #6c757d;
+    --high: #dc3545; --mid: #ffc107; --low: #6c757d;
+    --accent: #0d6efd; --tab-active: #0d6efd; --tab-bg: #e9ecef;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a2e; --card: #16213e; --border: #374151;
+      --text: #e2e8f0; --muted: #9ca3af;
+      --high: #f87171; --mid: #fbbf24; --low: #9ca3af;
+      --accent: #60a5fa; --tab-active: #60a5fa; --tab-bg: #0f3460;
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+          background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+  header { background: var(--accent); color: #fff; padding: 16px 24px;
+            display: flex; justify-content: space-between; align-items: center; }
+  header h1 { font-size: 18px; font-weight: 700; }
+  header .meta { font-size: 12px; opacity: .85; }
+  .container { max-width: 1200px; margin: 0 auto; padding: 16px; }
+  .alert { background: #fff3cd; border-left: 4px solid #ffc107; padding: 12px 16px;
+            margin-bottom: 16px; border-radius: 4px; font-size: 13px; color: #856404; }
+  .alert ul { margin-left: 20px; }
+  /* search */
+  .search-bar { display: flex; gap: 8px; margin-bottom: 16px; }
+  .search-bar input { flex: 1; padding: 8px 12px; border: 1px solid var(--border);
+                       border-radius: 6px; background: var(--card); color: var(--text);
+                       font-size: 14px; }
+  .search-bar button { padding: 8px 16px; background: var(--accent); color: #fff;
+                        border: none; border-radius: 6px; cursor: pointer; }
+  /* headlines */
+  .headline-box { background: var(--card); border: 1px solid var(--border);
+                   border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .headline-box h2 { font-size: 15px; margin-bottom: 10px; }
+  .headline-item { display: flex; align-items: baseline; gap: 8px; padding: 5px 0;
+                    border-bottom: 1px solid var(--border); }
+  .headline-item:last-child { border-bottom: none; }
+  .headline-num { font-weight: 700; color: var(--accent); min-width: 20px; }
+  .headline-item a { color: var(--text); text-decoration: none; flex: 1; }
+  .headline-item a:hover { color: var(--accent); text-decoration: underline; }
+  .source-tag { font-size: 11px; color: var(--muted); white-space: nowrap; }
+  /* tabs */
+  .tab-bar { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 12px; }
+  .tab-btn { padding: 7px 14px; background: var(--tab-bg); border: none; border-radius: 6px;
+              cursor: pointer; color: var(--text); font-size: 13px; transition: .15s; }
+  .tab-btn.active { background: var(--tab-active); color: #fff; font-weight: 600; }
+  .count { font-size: 11px; background: rgba(0,0,0,.15); border-radius: 10px;
+            padding: 1px 6px; margin-left: 4px; }
+  /* items */
+  .section-title { font-size: 14px; font-weight: 700; color: var(--muted);
+                    text-transform: uppercase; letter-spacing: .5px;
+                    margin: 16px 0 8px; border-bottom: 1px solid var(--border); padding-bottom: 4px; }
+  .item-card { background: var(--card); border: 1px solid var(--border);
+                border-radius: 6px; padding: 12px; margin-bottom: 8px; }
+  .item-card.hidden { display: none; }
+  .item-header { display: flex; align-items: flex-start; gap: 8px; }
+  .badge { font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+            white-space: nowrap; }
+  .badge.high { background: var(--high); color: #fff; }
+  .badge.mid  { background: var(--mid); color: #000; }
+  .badge.low  { background: var(--border); color: var(--muted); }
+  .item-title a { color: var(--text); font-weight: 500; text-decoration: none; }
+  .item-title a:hover { color: var(--accent); text-decoration: underline; }
+  .item-meta { font-size: 12px; color: var(--muted); margin-top: 4px; }
+  .item-summary { font-size: 13px; margin-top: 6px; color: var(--text); }
+  .related { font-size: 12px; margin-top: 4px; color: var(--muted); }
+  .related a { color: var(--accent); }
+  /* feedback */
+  .feedback-note { text-align: center; padding: 16px; font-size: 13px; color: var(--muted); }
+  /* search results */
+  #search-results { display: none; }
+  #search-results.active { display: block; }
+</style>
+</head>
+<body>
+<header>
+  <h1>📋 소관분야 정책·예산·입법 모니터링</h1>
+  <div class="meta">2026-07-27 | 총 17건</div>
+</header>
+<div class="container">
+  
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="🔍 키워드, 부처명, 이슈명으로 검색..." oninput="liveSearch(this.value)">
+    <button onclick="clearSearch()">초기화</button>
+  </div>
+  <div id="search-results"></div>
+
+  <div class="headline-box">
+    <h2>🔥 오늘의 헤드라인 Top 5</h2>
+    
+            <div class="headline-item">
+              <span class="headline-num">1</span>
+              <a href="https://www.donga.com/news/Economy/article/all/20260727/134371836/1" target="_blank">둘레 800m 초대형 현미경…1.1조원 투입 ‘한국새빛가속기’ 첫삽</a>
+              <span class="source-tag">동아일보</span>
+            </div>
+            <div class="headline-item">
+              <span class="headline-num">2</span>
+              <a href="https://www.donga.com/news/Economy/article/all/20260727/134372186/1" target="_blank">과기정통부-AMD 맞손…AI 반도체 생태계 협력</a>
+              <span class="source-tag">동아일보</span>
+            </div>
+  </div>
+
+  <div class="tab-bar"><button class="tab-btn active" onclick="switchTab('industry')" id="btn-industry">산자중기위 <span class="count">2</span></button><button class="tab-btn " onclick="switchTab('science')" id="btn-science">과방위 <span class="count">3</span></button><button class="tab-btn " onclick="switchTab('agriculture')" id="btn-agriculture">농해수위 <span class="count">7</span></button><button class="tab-btn " onclick="switchTab('politics')" id="btn-politics">정무위 <span class="count">5</span></button><button class="tab-btn " onclick="switchTab('common')" id="btn-common">공통 이슈 <span class="count">0</span></button><button class="tab-btn " onclick="switchTab('legislation')" id="btn-legislation">입법 현황 <span class="count">0</span></button></div>
+  <div id="tab-industry" class="tab-content" style="display:block"><div class="section-title">산업통상자원부</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.donga.com/news/Economy/article/all/20260727/134371100/1" target="_blank">최대 300억 대출정책 편다… 우리은행, 중견기업 육성 ‘라이징 리더스 300’ 모집</a></span>
+  </div>
+  <div class="item-meta">동아일보 | 2026-07-27</div>
+  <div class="item-summary">우리은행이 산업통상자원부와 손잡고 독자적 기술력과 성장 가능성을 갖춘 중견·중견후보기업 지원에 나선다. 양 기관은 차세대 산업의 주축이 될 우수 기업을 발굴·육성하는 ‘라이징 리더스 300(Rising Leaders 300)’ 8기 모집 절차를 시작한다. 우리은행은 1</div>
+  
+</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.khan.co.kr/article/202607271100001/?utm_source=khan_rss&utm_medium=rss&utm_campaign=economy_news" target="_blank">산업부 “2038년까지 천연가스 국내 수요 연평균 0.94% 하락”</a></span>
+  </div>
+  <div class="item-meta">경향신문 | 2026-07-27</div>
+  <div class="item-summary">제16차 장기 천연가스 수급계획 확정·공고기준수요 올해 4591만t→2038년 4100만t‘수급관리수요’는 연평균 0.01% 소폭 증가2038년까지 최대 887만t 저장 용량 확보 방침한국서부발전 구미액화천연가스(LNG)발전소 조감도. 94% 하락할 전망이라고 밝혔다.</div>
+  
+</div></div><div id="tab-science" class="tab-content" style="display:none"><div class="section-title">과학기술정보통신부</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge high">상</span>
+    <span class="item-title"><a href="https://www.donga.com/news/Economy/article/all/20260727/134371836/1" target="_blank">둘레 800m 초대형 현미경…1.1조원 투입 ‘한국새빛가속기’ 첫삽</a></span>
+  </div>
+  <div class="item-meta">동아일보 | 2026-07-27</div>
+  <div class="item-summary">27일 충북 청주시 오창테크노폴리스 산업단지의 한 부지. 현재는 황토색 흙바닥이 드러난 드넓은 빈 터지만 3년 뒤 2029년이면 반도체, 신약, 첨단소재 연구의 핵심기지로 변모할 곳이다. 둘레 약 800m의 원형 저장링을 갖춘 4세대 방사광가속기가 이곳에 들어서기 때문</div>
+  
+</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge high">상</span>
+    <span class="item-title"><a href="https://www.donga.com/news/Economy/article/all/20260727/134372186/1" target="_blank">과기정통부-AMD 맞손…AI 반도체 생태계 협력</a></span>
+  </div>
+  <div class="item-meta">동아일보 | 2026-07-27</div>
+  <div class="item-summary">정부가 글로벌 반도체 기업 AMD와 손잡고 AMD의 중앙처리장치(CPU) 및 그래픽처리장치(GPU)와 국산 신경망처리장치(NPU)를 함께 사용하는 인공지능(AI) 컴퓨팅 환경을 만들기로 했다. 과학기술정보통신부는 23일(현지 시간) 미국 샌프란시스코에서 열린 ‘AMD </div>
+  <div class="related">관련 보도: <a href="https://www.donga.com/news/Economy/article/all/20260727/134372186/1" target="_blank">동아일보</a></div>
+</div><div class="section-title">원자력안전위원회</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.khan.co.kr/article/202607272043015/?utm_source=khan_rss&utm_medium=rss&utm_campaign=economy_news" target="_blank">중국 ‘라이양 원전 5·6호기’에…두산에너빌리티, 핵심소재 공급</a></span>
+  </div>
+  <div class="item-meta">경향신문 | 2026-07-27</div>
+  <div class="item-summary">두산에너빌리티가 중국 산둥성 라이양 원자력발전소에 핵심 소재를 공급한다. 두산에너빌리티는 27일 중국 둥팡전기그룹 계열사와 라이양 원전 5·6호기에 들어갈 증기발생기용 초대형 단조품 공급 계약을 체결했다고 밝혔다. 증기발생기는 원자로에서 발생한 열을 이용해 증기를 만드</div>
+  
+</div></div><div id="tab-agriculture" class="tab-content" style="display:none"><div class="section-title">농림축산식품부</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge mid">중</span>
+    <span class="item-title"><a href="https://www.khan.co.kr/article/202607272043005/?utm_source=khan_rss&utm_medium=rss&utm_campaign=economy_news" target="_blank">가축분뇨로 전기·열 생산 기술 개발 나선다</a></span>
+  </div>
+  <div class="item-meta">경향신문 | 2026-07-27</div>
+  <div class="item-summary">정부, 2029년까지 298억원 투입고체연료 생산 고도화 사업 추진정부가 가축분뇨를 고체연료로 만들어 전기·열을 생산하는 기술을 고도화하기로 했다. 분뇨로 인한 환경오염은 줄이고, 재생에너지 생산은 늘리는 정책이다. 농림축산식품부와 기후에너지환경부는 올해부터 2029년</div>
+  
+</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge mid">중</span>
+    <span class="item-title"><a href="https://www.khan.co.kr/article/202607271433001/?utm_source=khan_rss&utm_medium=rss&utm_campaign=economy_news" target="_blank">가축 분뇨로 전기 생산한다···정부 기술개발에 300억 투입</a></span>
+  </div>
+  <div class="item-meta">경향신문 | 2026-07-27</div>
+  <div class="item-summary">축사에서 한 직원이 스키드로더를 이용해 분뇨를 거둬내고 있다. 분뇨료 인한 환경 오염은 줄이고, 재생에너지 생산은 늘리는 정책이다. 농림축산식품부와 기후에너지환경부는 올해부터 2029년까지 총 298억원을 투입해 고체연료 생산·이용 기술을 개발하고 오염방지 기술을 고도</div>
+  
+</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.donga.com/news/Economy/article/all/20260727/134374225/1" target="_blank">농협, 국산 전략작물 가공식품 특별 할인전… 전국 하나로마트서 29일까지</a></span>
+  </div>
+  <div class="item-meta">동아일보 | 2026-07-27</div>
+  <div class="item-summary">농협경제지주는 오는 29일까지 전국 농협하나로마트에서 국산 전략작물 가공식품 특별 할인전을 진행한다고 밝혔다. 이번 행사는 농림축산식품부의 ‘전략작물 오프라인 소비판촉 지원사업’의 하나로 마련됐다. 전략작물은 벼 대신 재배할 수 있는 밀과 콩, 가루쌀 등을 뜻한다. 행</div>
+  
+</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.donga.com/news/Economy/article/all/20260727/134371507/1" target="_blank">CJ제일제당이 선보인 K-증류주, 농식품부 ‘모두의 상생 프로젝트’ 우수사례 선정</a></span>
+  </div>
+  <div class="item-meta">동아일보 | 2026-07-27</div>
+  <div class="item-summary">CJ제일제당은 프리미엄 K-증류주 브랜드 ‘jari(자리)’가 농림축산식품부 주관 ‘모두의 상생 프로젝트’의 우수사례로 선정됐다고 27일 밝혔다. 모두의 상생 프로젝트는 농식품부가 농업과 식품기업 간 상생협력 활동을 통합 지원해 ESG 모델을 발굴하고 사회적 가치를 확</div>
+  
+</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.hani.co.kr/arti/economy/finance/1270084.html" target="_blank">농협은행, 20개 농가 ‘농업인 탄소배출권’ 5254t구매</a></span>
+  </div>
+  <div class="item-meta">한겨레 | 2026-07-27</div>
+  
+  
+</div><div class="section-title">산림청</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.donga.com/news/Politics/article/all/20260727/134368655/1" target="_blank">‘산불 카르텔’ 실태 드러나…기술자 10명 중 4명 ‘자격대여’ 의심</a></span>
+  </div>
+  <div class="item-meta">동아일보 | 2026-07-26</div>
+  <div class="item-summary">이재명 대통령이 국무회의에서 지적한 ‘산불 카르텔’의 실체가 감사원 감사에서 드러났다. 산림법인에 등록된 산림기술자 1만 6970명 가운데 6749명이 자격 대여나 명의 도용이 의심되는 것으로 조사됐다. 감사원은 2023년부터 올해 5월까지 산림법인 소속 기술자로 등록</div>
+  
+</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.mk.co.kr/news/politics/12108757" target="_blank">22만명 대피한 유럽 산불…이 대통령, 佛·스페인에 “하루빨리 진화되길”</a></span>
+  </div>
+  <div class="item-meta">매일경제 | 2026-07-27</div>
+  <div class="item-summary">이재명 대통령은 27일 프랑스와 스페인을 덮친 대형 산불과 관련해 피해 주민들에게 위로를 전하며 조속한 진화를 기원했다. 현재 프랑스에서는 와인의 도시 보르도 인근까지 불길이 번지..</div>
+  
+</div></div><div id="tab-politics" class="tab-content" style="display:none"><div class="section-title">국무조정실·국무총리비서실</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge mid">중</span>
+    <span class="item-title"><a href="https://www.donga.com/news/Economy/article/all/20260727/134371895/1" target="_blank">“4050 무주택자-청년 캥거루족 생애 첫 주택 마련 핀셋 지원 검토”</a></span>
+  </div>
+  <div class="item-meta">동아일보 | 2026-07-27</div>
+  <div class="item-summary">한성숙 국무총리는 27일 중장년 무주택자와 청년 캥거루족 등이 생애 최초 주택 구입 지원 대상에서 제외되지 않도록 금융 지원 요건을 적극 살필 것을 강조했다. 정부는 실수요자를 위한 금융 지원을 늘리고 공급 활성화를 위한 각종 규제 완화를 추진할 뜻을 밝혔다. 한 총리</div>
+  
+</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.hani.co.kr/arti/politics/politics_general/1270225.html" target="_blank">나흘 만에 한 총리 주재 ‘부동산 대토론’…“청년층 ‘핀셋 지원’ 할 것”</a></span>
+  </div>
+  <div class="item-meta">한겨레 | 2026-07-27</div>
+  
+  
+</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.mk.co.kr/news/realestate/12108763" target="_blank">공급 확대 요청에 … 국토장관 "그린벨트 해제 강한 열망"</a></span>
+  </div>
+  <div class="item-meta">매일경제 | 2026-07-27</div>
+  <div class="item-summary">정부가 27일 한성숙 국무총리 주재로 부동산 토론회를 한 번 더 열고 현장 의견 청취를 마무리했다. 보유세 개편 방향이 초고가·다주택에 대한 '핀셋 증세'로 잡힌 가운데 이날은 공..</div>
+  
+</div><div class="section-title">공정거래위원회</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.khan.co.kr/article/202607271551011/?utm_source=khan_rss&utm_medium=rss&utm_campaign=economy_news" target="_blank">공정위, 가맹본부 ‘갑질’ 실태조사··· 분쟁 많은 화장품 업종 첫 포함</a></span>
+  </div>
+  <div class="item-meta">경향신문 | 2026-07-27</div>
+  <div class="item-summary">1일 서울 강남구 코엑스에서 열린 화장품 완제품 전시회 ‘2026 인터참 코리아’를 찾은 참관객들이 전시를 둘러보고 있다. 올해는 최근 분쟁이 많아진 화장품이 조사 대상 업종에 추가됐다. 공정위는 21개 업종의 가맹본부 200곳과 가맹점 사업자 1만2000명을 ···</div>
+  
+</div><div class="section-title">금융위원회</div>
+<div class="item-card">
+  <div class="item-header">
+    <span class="badge low">하</span>
+    <span class="item-title"><a href="https://www.mk.co.kr/news/stock/12108692" target="_blank">금융위, 금융사 제재때 외부전문가 참여시킨다</a></span>
+  </div>
+  <div class="item-meta">매일경제 | 2026-07-27</div>
+  <div class="item-summary">금융위원회가 금융사 제재 절차의 전문성과 실효성을 높이기 위해 별도 심의기구를 신설하는 대신 기존 안건검토소위원회 기능을 강화하는 방향으로 가닥을 잡았다. 사실관계가 복잡하거나 ..</div>
+  
+</div></div><div id="tab-common" class="tab-content" style="display:none"><p style="color:var(--muted);padding:16px">수집된 항목이 없습니다.</p></div><div id="tab-legislation" class="tab-content" style="display:none"><p style="color:var(--muted);padding:16px">수집된 항목이 없습니다.</p></div>
+
+  <div class="feedback-note">오늘 놓친 소식이나 불필요했던 항목은 <code>feedback/feedback.md</code>에 기록해 주세요.</div>
+</div>
+
+<script>
+const ALL_ITEMS = [{"title": "둘레 800m 초대형 현미경…1.1조원 투입 ‘한국새빛가속기’ 첫삽", "url": "https://www.donga.com/news/Economy/article/all/20260727/134371836/1", "date": "2026-07-27", "source": "동아일보", "summary": "27일 충북 청주시 오창테크노폴리스 산업단지의 한 부지. 현재는 황토색 흙바닥이 드러난 드넓은 빈 터지만 3년 뒤 2029년이면 반도체, 신약, 첨단소재 연구의 핵심기지로 변모할 곳이다. 둘레 약 800m의 원형 저장링을 갖춘 4세대 방사광가속기가 이곳에 들어서기 때문이다. 과학기술정보통신부와 한국기초과학지원연구원은…", "committee": "science", "ministry": "msit", "type": "news", "importance": "상", "cluster_id": null, "related": [], "ministry_name": "과학기술정보통신부"}, {"title": "과기정통부-AMD 맞손…AI 반도체 생태계 협력", "url": "https://www.donga.com/news/Economy/article/all/20260727/134372186/1", "date": "2026-07-27", "source": "동아일보", "summary": "정부가 글로벌 반도체 기업 AMD와 손잡고 AMD의 중앙처리장치(CPU) 및 그래픽처리장치(GPU)와 국산 신경망처리장치(NPU)를 함께 사용하는 인공지능(AI) 컴퓨팅 환경을 만들기로 했다. 과학기술정보통신부는 23일(현지 시간) 미국 샌프란시스코에서 열린 ‘AMD 어드밴싱 AI 2026’에서 리사 수 AMD…", "committee": "science", "ministry": "msit", "type": "news", "importance": "상", "cluster_id": null, "related": [{"title": "과기정통부-AMD 맞손…AI 반도체 생태계 협력", "url": "https://www.donga.com/news/Economy/article/all/20260727/134372186/1", "source": "동아일보"}], "ministry_name": "과학기술정보통신부"}, {"title": "“4050 무주택자-청년 캥거루족 생애 첫 주택 마련 핀셋 지원 검토”", "url": "https://www.donga.com/news/Economy/article/all/20260727/134371895/1", "date": "2026-07-27", "source": "동아일보", "summary": "한성숙 국무총리는 27일 중장년 무주택자와 청년 캥거루족 등이 생애 최초 주택 구입 지원 대상에서 제외되지 않도록 금융 지원 요건을 적극 살필 것을 강조했다. 정부는 실수요자를 위한 금융 지원을 늘리고 공급 활성화를 위한 각종 규제 완화를 추진할 뜻을 밝혔다. 한 총리는 이날 서울 중구 대한상공회의소에서 열린 부동산…", "committee": "politics", "ministry": "opm", "type": "news", "importance": "중", "cluster_id": null, "related": [], "ministry_name": "국무조정실·국무총리비서실"}, {"title": "가축분뇨로 전기·열 생산 기술 개발 나선다", "url": "https://www.khan.co.kr/article/202607272043005/?utm_source=khan_rss&utm_medium=rss&utm_campaign=economy_news", "date": "2026-07-27", "source": "경향신문", "summary": "정부, 2029년까지 298억원 투입고체연료 생산 고도화 사업 추진정부가 가축분뇨를 고체연료로 만들어 전기·열을 생산하는 기술을 고도화하기로 했다. 분뇨로 인한 환경오염은 줄이고, 재생에너지 생산은 늘리는 정책이다. 농림축산식품부와 기후에너지환경부는 올해부터 2029년까지 총 298억원을 투입해 고체연료 생산·이용…", "committee": "agriculture", "ministry": "mafra", "type": "news", "importance": "중", "cluster_id": null, "related": [], "ministry_name": "농림축산식품부"}, {"title": "가축 분뇨로 전기 생산한다···정부 기술개발에 300억 투입", "url": "https://www.khan.co.kr/article/202607271433001/?utm_source=khan_rss&utm_medium=rss&utm_campaign=economy_news", "date": "2026-07-27", "source": "경향신문", "summary": "축사에서 한 직원이 스키드로더를 이용해 분뇨를 거둬내고 있다. 분뇨료 인한 환경 오염은 줄이고, 재생에너지 생산은 늘리는 정책이다. 농림축산식품부와 기후에너지환경부는 올해부터 2029년까지 총 298억원을 투입해 고체연료 생산·이용 기술을 개발하고 오염방지 기술을 고도화···", "committee": "agriculture", "ministry": "mafra", "type": "news", "importance": "중", "cluster_id": null, "related": [], "ministry_name": "농림축산식품부"}, {"title": "‘산불 카르텔’ 실태 드러나…기술자 10명 중 4명 ‘자격대여’ 의심", "url": "https://www.donga.com/news/Politics/article/all/20260727/134368655/1", "date": "2026-07-26", "source": "동아일보", "summary": "이재명 대통령이 국무회의에서 지적한 ‘산불 카르텔’의 실체가 감사원 감사에서 드러났다. 산림법인에 등록된 산림기술자 1만 6970명 가운데 6749명이 자격 대여나 명의 도용이 의심되는 것으로 조사됐다. 감사원은 2023년부터 올해 5월까지 산림법인 소속 기술자로 등록된 1만 6970명을 점검한 결과, 1663개 법인…", "committee": "agriculture", "ministry": "kfs", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "산림청"}, {"title": "농협, 국산 전략작물 가공식품 특별 할인전… 전국 하나로마트서 29일까지", "url": "https://www.donga.com/news/Economy/article/all/20260727/134374225/1", "date": "2026-07-27", "source": "동아일보", "summary": "농협경제지주는 오는 29일까지 전국 농협하나로마트에서 국산 전략작물 가공식품 특별 할인전을 진행한다고 밝혔다. 이번 행사는 농림축산식품부의 ‘전략작물 오프라인 소비판촉 지원사업’의 하나로 마련됐다. 전략작물은 벼 대신 재배할 수 있는 밀과 콩, 가루쌀 등을 뜻한다. 행사 품목은 농협 가루쌀 과자인 우리쌀칩과 쌀로팝을…", "committee": "agriculture", "ministry": "mafra", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "농림축산식품부"}, {"title": "CJ제일제당이 선보인 K-증류주, 농식품부 ‘모두의 상생 프로젝트’ 우수사례 선정", "url": "https://www.donga.com/news/Economy/article/all/20260727/134371507/1", "date": "2026-07-27", "source": "동아일보", "summary": "CJ제일제당은 프리미엄 K-증류주 브랜드 ‘jari(자리)’가 농림축산식품부 주관 ‘모두의 상생 프로젝트’의 우수사례로 선정됐다고 27일 밝혔다. 모두의 상생 프로젝트는 농식품부가 농업과 식품기업 간 상생협력 활동을 통합 지원해 ESG 모델을 발굴하고 사회적 가치를 확산하기 위해 올해 신설한 프로그램이다. 이날 서울…", "committee": "agriculture", "ministry": "mafra", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "농림축산식품부"}, {"title": "최대 300억 대출정책 편다… 우리은행, 중견기업 육성 ‘라이징 리더스 300’ 모집", "url": "https://www.donga.com/news/Economy/article/all/20260727/134371100/1", "date": "2026-07-27", "source": "동아일보", "summary": "우리은행이 산업통상자원부와 손잡고 독자적 기술력과 성장 가능성을 갖춘 중견·중견후보기업 지원에 나선다. 양 기관은 차세대 산업의 주축이 될 우수 기업을 발굴·육성하는 ‘라이징 리더스 300(Rising Leaders 300)’ 8기 모집 절차를 시작한다. 우리은행은 1기부터 7기까지 총 225여 개 기업을 선발해 총…", "committee": "industry", "ministry": "motie", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "산업통상자원부"}, {"title": "농협은행, 20개 농가 ‘농업인 탄소배출권’ 5254t구매", "url": "https://www.hani.co.kr/arti/economy/finance/1270084.html", "date": "2026-07-27", "source": "한겨레", "summary": "", "committee": "agriculture", "ministry": "mafra", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "농림축산식품부"}, {"title": "나흘 만에 한 총리 주재 ‘부동산 대토론’…“청년층 ‘핀셋 지원’ 할 것”", "url": "https://www.hani.co.kr/arti/politics/politics_general/1270225.html", "date": "2026-07-27", "source": "한겨레", "summary": "", "committee": "politics", "ministry": "opm", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "국무조정실·국무총리비서실"}, {"title": "중국 ‘라이양 원전 5·6호기’에…두산에너빌리티, 핵심소재 공급", "url": "https://www.khan.co.kr/article/202607272043015/?utm_source=khan_rss&utm_medium=rss&utm_campaign=economy_news", "date": "2026-07-27", "source": "경향신문", "summary": "두산에너빌리티가 중국 산둥성 라이양 원자력발전소에 핵심 소재를 공급한다. 두산에너빌리티는 27일 중국 둥팡전기그룹 계열사와 라이양 원전 5·6호기에 들어갈 증기발생기용 초대형 단조품 공급 계약을 체결했다고 밝혔다. 증기발생기는 원자로에서 발생한 열을 이용해 증기를 만드는 원전 핵심 설비다. 생산한 증기로 터빈을 돌려…", "committee": "science", "ministry": "nssc", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "원자력안전위원회"}, {"title": "공정위, 가맹본부 ‘갑질’ 실태조사··· 분쟁 많은 화장품 업종 첫 포함", "url": "https://www.khan.co.kr/article/202607271551011/?utm_source=khan_rss&utm_medium=rss&utm_campaign=economy_news", "date": "2026-07-27", "source": "경향신문", "summary": "1일 서울 강남구 코엑스에서 열린 화장품 완제품 전시회 ‘2026 인터참 코리아’를 찾은 참관객들이 전시를 둘러보고 있다. 올해는 최근 분쟁이 많아진 화장품이 조사 대상 업종에 추가됐다. 공정위는 21개 업종의 가맹본부 200곳과 가맹점 사업자 1만2000명을 ···", "committee": "politics", "ministry": "kftc", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "공정거래위원회"}, {"title": "산업부 “2038년까지 천연가스 국내 수요 연평균 0.94% 하락”", "url": "https://www.khan.co.kr/article/202607271100001/?utm_source=khan_rss&utm_medium=rss&utm_campaign=economy_news", "date": "2026-07-27", "source": "경향신문", "summary": "제16차 장기 천연가스 수급계획 확정·공고기준수요 올해 4591만t→2038년 4100만t‘수급관리수요’는 연평균 0.01% 소폭 증가2038년까지 최대 887만t 저장 용량 확보 방침한국서부발전 구미액화천연가스(LNG)발전소 조감도. 94% 하락할 전망이라고 밝혔다. 중동 사태···", "committee": "industry", "ministry": "motie", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "산업통상자원부"}, {"title": "공급 확대 요청에 … 국토장관 \"그린벨트 해제 강한 열망\"", "url": "https://www.mk.co.kr/news/realestate/12108763", "date": "2026-07-27", "source": "매일경제", "summary": "정부가 27일 한성숙 국무총리 주재로 부동산 토론회를 한 번 더 열고 현장 의견 청취를 마무리했다. 보유세 개편 방향이 초고가·다주택에 대한 '핀셋 증세'로 잡힌 가운데 이날은 공..", "committee": "politics", "ministry": "opm", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "국무조정실·국무총리비서실"}, {"title": "22만명 대피한 유럽 산불…이 대통령, 佛·스페인에 “하루빨리 진화되길”", "url": "https://www.mk.co.kr/news/politics/12108757", "date": "2026-07-27", "source": "매일경제", "summary": "이재명 대통령은 27일 프랑스와 스페인을 덮친 대형 산불과 관련해 피해 주민들에게 위로를 전하며 조속한 진화를 기원했다. 현재 프랑스에서는 와인의 도시 보르도 인근까지 불길이 번지..", "committee": "agriculture", "ministry": "kfs", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "산림청"}, {"title": "금융위, 금융사 제재때 외부전문가 참여시킨다", "url": "https://www.mk.co.kr/news/stock/12108692", "date": "2026-07-27", "source": "매일경제", "summary": "금융위원회가 금융사 제재 절차의 전문성과 실효성을 높이기 위해 별도 심의기구를 신설하는 대신 기존 안건검토소위원회 기능을 강화하는 방향으로 가닥을 잡았다. 사실관계가 복잡하거나 ..", "committee": "politics", "ministry": "fsc", "type": "news", "importance": "하", "cluster_id": null, "related": [], "ministry_name": "금융위원회"}];
+
+function switchTab(id) {
+  document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('tab-' + id).style.display = 'block';
+  document.getElementById('btn-' + id).classList.add('active');
+}
+
+function liveSearch(q) {
+  const sr = document.getElementById('search-results');
+  const tabs = document.querySelector('.tab-bar');
+  const tabContents = document.querySelectorAll('.tab-content');
+  if (!q.trim()) {
+    sr.innerHTML = ''; sr.style.display = 'none';
+    tabs.style.display = ''; tabContents.forEach(el => {/* restore tab */});
+    switchTab('industry');
+    return;
+  }
+  const lower = q.toLowerCase();
+  const hits = ALL_ITEMS.filter(item =>
+    (item.title||'').toLowerCase().includes(lower) ||
+    (item.summary||'').toLowerCase().includes(lower) ||
+    (item.source||'').toLowerCase().includes(lower) ||
+    (item.ministry_name||'').toLowerCase().includes(lower) ||
+    (item.ministry||'').toLowerCase().includes(lower)
+  );
+  tabs.style.display = 'none';
+  tabContents.forEach(el => el.style.display = 'none');
+  if (!hits.length) {
+    sr.innerHTML = '<p style="color:var(--muted);padding:16px">검색 결과가 없습니다.</p>';
+    sr.style.display = 'block'; return;
+  }
+  const BADGE = {'상':'high','중':'mid','하':'low'};
+  sr.innerHTML = '<div class="section-title">검색 결과 (' + hits.length + '건)</div>' +
+    hits.map(item => `
+      <div class="item-card">
+        <div class="item-header">
+          <span class="badge ${BADGE[item.importance]||'low'}">${item.importance||'하'}</span>
+          <span class="item-title"><a href="${item.url}" target="_blank">${item.title}</a></span>
+        </div>
+        <div class="item-meta">${item.source} | ${item.date} | ${item.committee||''}</div>
+        ${item.summary ? '<div class="item-summary">'+ item.summary.substring(0,150) +'</div>' : ''}
+      </div>`).join('');
+  sr.style.display = 'block';
+}
+
+function clearSearch() {
+  document.getElementById('search-input').value = '';
+  liveSearch('');
+}
+</script>
+</body>
+</html>
